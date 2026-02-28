@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "uppgift2.api": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:45743;http://localhost:45744"
+    }
+  }
+}

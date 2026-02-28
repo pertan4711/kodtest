@@ -1,0 +1,11 @@
+namespace uppgift2.service.Models;
+
+public class User
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public DateTime MemberSince { get; set; }
+
+    public ICollection<Loan> Loans { get; set; } = new List<Loan>();
+}
