@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+option csharp_namespace = "LibraryService.Grpc.Library";
+
+package library;
+
+service LibraryService {
+  rpc GetMostBorrowedBooks (MostBorrowedRequest) returns (MostBorrowedResponse);
+  rpc GetBookAvailability (BookAvailabilityRequest) returns (BookAvailabilityResponse);
+  rpc GetTopBorrowers (TopBorrowersRequest) returns (TopBorrowersResponse);
+  rpc GetUserLoanHistory (UserLoanHistoryRequest) returns (UserLoanHistoryResponse);
+  rpc GetRelatedBooks (RelatedBooksRequest) returns (RelatedBooksResponse);
+  rpc GetReadingSpeed (ReadingSpeedRequest) returns (ReadingSpeedResponse);
+}
+
+message MostBorrowedRequest {
+  int32 top = 1;
+}
+
+message BookAvailabilityRequest {
+  int32 book_id = 1;
+}
+
+message TopBorrowersRequest {
+  string start_date = 1;
+  string end_date = 2;
+  int32 top = 3;
+}
+
+message UserLoanHistoryRequest {
+  int32 user_id = 1;
+  optional string start_date = 2;
+  optional string end_date = 3;
+}
+
+message RelatedBooksRequest {
+  int32 book_id = 1;
+  int32 top = 2;
+}
+
+message ReadingSpeedRequest {
+  int32 book_id = 1;
+}
+
+message MostBorrowedResponse {
+  repeated MostBorrowedBook books = 1;
+}
+
+message MostBorrowedBook {
+  int32 book_id = 1;
+  string title = 2;
+  string author = 3;
+  int32 total_loans = 4;
+}
+
+message BookAvailabilityResponse {
+  int32 book_id = 1;
+  string title = 2;
+  int32 total_copies = 3;
+  int32 available_copies = 4;
+  int32 borrowed_copies = 5;
+  bool found = 6;
+}
+
+message TopBorrowersResponse {
+  repeated TopBorrower borrowers = 1;
+}
+
+message TopBorrower {
+  int32 user_id = 1;
+  string name = 2;
+  string email = 3;
+  int32 total_loans = 4;
+}
+
+message UserLoanHistoryResponse {
+  repeated UserLoan loans = 1;
+}
+
+message UserLoan {
+  int32 loan_id = 1;
+  string book_title = 2;
+  string author = 3;
+  string loan_date = 4;
+  optional string return_date = 5;
+}
+
+message RelatedBooksResponse {
+  repeated RelatedBook books = 1;
+}
+
+message RelatedBook {
+  int32 book_id = 1;
+  string title = 2;
+  string author = 3;
+  int32 shared_borrowers = 4;
+}
+
+message ReadingSpeedResponse {
+  int32 book_id = 1;
+  string title = 2;
+  int32 pages = 3;
+  double average_pages_per_day = 4;
+  int32 completed_loans = 5;
+  bool found = 6;
+}

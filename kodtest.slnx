@@ -1,5 +1,5 @@
 <Solution>
-  <Project Path="kodtest/uppgift1.csproj" />
-  <Project Path="uppgift2.api/uppgift2.api.csproj" />
-  <Project Path="uppgift2.service/uppgift2.service.csproj" />
+  <Project Path="kodtest/uppgift1.csproj" DisplayName="Uppgift1" />
+  <Project Path="uppgift2.api/Library.api.csproj" />
+  <Project Path="uppgift2.service/LibraryService.csproj" />
 </Solution>

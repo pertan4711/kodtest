@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using uppgift2.service.DTOs;
-using uppgift2.service.Models;
-using uppgift2.service.Services;
+using LibraryService.Grpc.Books;
 
 namespace uppgift2.api.Controllers;
 
@@ -12,11 +10,11 @@ namespace uppgift2.api.Controllers;
 [Route("api/[controller]")]
 public class BooksController : ControllerBase
 {
-    private readonly IBookService _bookService;
+    private readonly LibraryService.Grpc.Books.BookService.BookServiceClient _grpcClient;
 
-    public BooksController(IBookService bookService)
+    public BooksController(LibraryService.Grpc.Books.BookService.BookServiceClient grpcClient)
     {
-        _bookService = bookService;
+        _grpcClient = grpcClient;
     }
 
     /// <summary>
@@ -28,8 +26,10 @@ public class BooksController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllBooks()
     {
-        var books = await _bookService.GetAllBooksAsync();
-        return Ok(books);
+        var request = new GetAllBooksRequest();
+        var response = await _grpcClient.GetAllBooksAsync(request);
+        
+        return Ok(response.Books);
     }
 
     /// <summary>
@@ -44,44 +44,37 @@ public class BooksController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetBook(int id)
     {
-        var book = await _bookService.GetBookByIdAsync(id);
+        var request = new GetBookRequest { Id = id };
+        var response = await _grpcClient.GetBookAsync(request);
         
-        if (book == null)
+        if (!response.Found)
             return NotFound($"Bok med ID {id} hittades inte.");
         
-        return Ok(book);
+        return Ok(response.Book);
     }
 
     /// <summary>
     /// Skapar en ny bok
     /// </summary>
-    /// <param name="createBookDto">Bokens information</param>
+    /// <param name="createBookRequest">Bokens information</param>
     /// <returns>Den nyskapade boken</returns>
     /// <response code="201">Boken har skapats</response>
     /// <response code="400">Ogiltig data</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateBook([FromBody] CreateBookDto createBookDto)
+    public async Task<IActionResult> CreateBook([FromBody] CreateBookRequest createBookRequest)
     {
-        var book = new Book
-        {
-            Title = createBookDto.Title,
-            Author = createBookDto.Author,
-            ISBN = createBookDto.ISBN,
-            Pages = createBookDto.Pages,
-            PublishedYear = createBookDto.PublishedYear
-        };
-
-        var createdBook = await _bookService.CreateBookAsync(book);
-        return CreatedAtAction(nameof(GetBook), new { id = createdBook.Id }, createdBook);
+        var response = await _grpcClient.CreateBookAsync(createBookRequest);
+        
+        return CreatedAtAction(nameof(GetBook), new { id = response.Book.Id }, response.Book);
     }
 
     /// <summary>
     /// Uppdaterar en befintlig bok
     /// </summary>
     /// <param name="id">Bokens ID</param>
-    /// <param name="updateBookDto">Uppdaterad information</param>
+    /// <param name="updateBookRequest">Uppdaterad information</param>
     /// <returns>Den uppdaterade boken</returns>
     /// <response code="200">Boken har uppdaterats</response>
     /// <response code="404">Boken hittades inte</response>
@@ -90,23 +83,15 @@ public class BooksController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateBook(int id, [FromBody] UpdateBookDto updateBookDto)
+    public async Task<IActionResult> UpdateBook(int id, [FromBody] UpdateBookRequest updateBookRequest)
     {
-        var book = new Book
-        {
-            Title = updateBookDto.Title,
-            Author = updateBookDto.Author,
-            ISBN = updateBookDto.ISBN,
-            Pages = updateBookDto.Pages,
-            PublishedYear = updateBookDto.PublishedYear
-        };
-
-        var updatedBook = await _bookService.UpdateBookAsync(id, book);
+        updateBookRequest.Id = id;
+        var response = await _grpcClient.UpdateBookAsync(updateBookRequest);
         
-        if (updatedBook == null)
+        if (!response.Found)
             return NotFound($"Bok med ID {id} hittades inte.");
         
-        return Ok(updatedBook);
+        return Ok(response.Book);
     }
 
     /// <summary>
@@ -121,9 +106,10 @@ public class BooksController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteBook(int id)
     {
-        var result = await _bookService.DeleteBookAsync(id);
+        var request = new DeleteBookRequest { Id = id };
+        var response = await _grpcClient.DeleteBookAsync(request);
         
-        if (!result)
+        if (!response.Success)
             return NotFound($"Bok med ID {id} hittades inte.");
         
         return NoContent();

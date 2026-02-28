@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using uppgift2.service.Services;
+using LibraryService.Grpc.Library;
 
 namespace uppgift2.api.Controllers;
 
@@ -10,11 +10,11 @@ namespace uppgift2.api.Controllers;
 [Route("api/[controller]")]
 public class LibraryController : ControllerBase
 {
-    private readonly ILibraryService _libraryService;
+    private readonly LibraryService.Grpc.Library.LibraryService.LibraryServiceClient _grpcClient;
 
-    public LibraryController(ILibraryService libraryService)
+    public LibraryController(LibraryService.Grpc.Library.LibraryService.LibraryServiceClient grpcClient)
     {
-        _libraryService = libraryService;
+        _grpcClient = grpcClient;
     }
 
     /// <summary>
@@ -27,8 +27,10 @@ public class LibraryController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetMostBorrowedBooks([FromQuery] int top = 10)
     {
-        var result = await _libraryService.GetMostBorrowedBooksAsync(top);
-        return Ok(result);
+        var request = new MostBorrowedRequest { Top = top };
+        var response = await _grpcClient.GetMostBorrowedBooksAsync(request);
+        
+        return Ok(response.Books);
     }
 
     /// <summary>
@@ -43,12 +45,13 @@ public class LibraryController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetBookAvailability(int bookId)
     {
-        var result = await _libraryService.GetBookAvailabilityAsync(bookId);
+        var request = new BookAvailabilityRequest { BookId = bookId };
+        var response = await _grpcClient.GetBookAvailabilityAsync(request);
         
-        if (result == null)
+        if (!response.Found)
             return NotFound($"Bok med ID {bookId} hittades inte.");
         
-        return Ok(result);
+        return Ok(response);
     }
 
     /// <summary>
@@ -71,8 +74,15 @@ public class LibraryController : ControllerBase
         if (startDate > endDate)
             return BadRequest("Startdatum kan inte vara senare än slutdatum.");
 
-        var result = await _libraryService.GetTopBorrowersAsync(startDate, endDate, top);
-        return Ok(result);
+        var request = new TopBorrowersRequest 
+        { 
+            StartDate = startDate.ToString("yyyy-MM-dd"),
+            EndDate = endDate.ToString("yyyy-MM-dd"),
+            Top = top
+        };
+        var response = await _grpcClient.GetTopBorrowersAsync(request);
+        
+        return Ok(response.Borrowers);
     }
 
     /// <summary>
@@ -90,8 +100,19 @@ public class LibraryController : ControllerBase
         [FromQuery] DateTime? startDate = null, 
         [FromQuery] DateTime? endDate = null)
     {
-        var result = await _libraryService.GetUserLoanHistoryAsync(userId, startDate, endDate);
-        return Ok(result);
+        var request = new UserLoanHistoryRequest 
+        { 
+            UserId = userId
+        };
+        
+        if (startDate.HasValue)
+            request.StartDate = startDate.Value.ToString("yyyy-MM-dd");
+        if (endDate.HasValue)
+            request.EndDate = endDate.Value.ToString("yyyy-MM-dd");
+
+        var response = await _grpcClient.GetUserLoanHistoryAsync(request);
+        
+        return Ok(response.Loans);
     }
 
     /// <summary>
@@ -105,8 +126,14 @@ public class LibraryController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetRelatedBooks(int bookId, [FromQuery] int top = 10)
     {
-        var result = await _libraryService.GetRelatedBooksAsync(bookId, top);
-        return Ok(result);
+        var request = new RelatedBooksRequest 
+        { 
+            BookId = bookId,
+            Top = top
+        };
+        var response = await _grpcClient.GetRelatedBooksAsync(request);
+        
+        return Ok(response.Books);
     }
 
     /// <summary>
@@ -125,11 +152,12 @@ public class LibraryController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetReadingSpeed(int bookId)
     {
-        var result = await _libraryService.GetReadingSpeedAsync(bookId);
+        var request = new ReadingSpeedRequest { BookId = bookId };
+        var response = await _grpcClient.GetReadingSpeedAsync(request);
         
-        if (result == null)
+        if (!response.Found)
             return NotFound($"Bok med ID {bookId} hittades inte.");
         
-        return Ok(result);
+        return Ok(response);
     }
 }

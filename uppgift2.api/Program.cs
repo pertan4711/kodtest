@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using uppgift2.service.Data;
-using uppgift2.service.Services;
+﻿using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +11,7 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "Biblioteks-API",
         Version = "v1",
@@ -24,7 +22,7 @@ builder.Services.AddSwaggerGen(options =>
             • Vilka böcker har en enskild användare lånat under respektive tidsperiod?<br />
             • Vilka andra böcker har lånats av personer som lånat en viss bok?<br />
             • Ungefärlig läshastighet för en viss bok, uttryckt i sidor per dag<br />",
-        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        Contact = new OpenApiContact
         {
             Name = "Biblioteks-API Support"
         }
@@ -39,25 +37,25 @@ builder.Services.AddSwaggerGen(options =>
     }
 });
 
-// Konfigurera databas
-builder.Services.AddDbContext<LibraryContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection") 
-        ?? "Server=(localdb)\\mssqllocaldb;Database=LibraryDb;Trusted_Connection=True;MultipleActiveResultSets=true"));
+// Registrera gRPC-klienter
+var grpcServerUrl = builder.Configuration.GetValue<string>("GrpcServer:Url") ?? "https://localhost:5002";
 
-// Registrera services
-builder.Services.AddScoped<ILibraryService, LibraryService>();
-builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddGrpcClient<LibraryService.Grpc.Library.LibraryService.LibraryServiceClient>(o =>
+{
+    o.Address = new Uri(grpcServerUrl);
+});
+
+builder.Services.AddGrpcClient<LibraryService.Grpc.Books.BookService.BookServiceClient>(o =>
+{
+    o.Address = new Uri(grpcServerUrl);
+});
+
+builder.Services.AddGrpcClient<LibraryService.Grpc.Users.UserService.UserServiceClient>(o =>
+{
+    o.Address = new Uri(grpcServerUrl);
+});
 
 var app = builder.Build();
-
-// Migrera och seeda databasen vid start
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<LibraryContext>();
-    context.Database.Migrate();
-}
 
 // Konfigurera HTTP request pipeline
 if (app.Environment.IsDevelopment())

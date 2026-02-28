@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using uppgift2.service.DTOs;
-using uppgift2.service.Models;
-using uppgift2.service.Services;
+using LibraryService.Grpc.Users;
 
 namespace uppgift2.api.Controllers;
 
@@ -12,11 +10,11 @@ namespace uppgift2.api.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly IUserService _userService;
+    private readonly LibraryService.Grpc.Users.UserService.UserServiceClient _grpcClient;
 
-    public UsersController(IUserService userService)
+    public UsersController(LibraryService.Grpc.Users.UserService.UserServiceClient grpcClient)
     {
-        _userService = userService;
+        _grpcClient = grpcClient;
     }
 
     /// <summary>
@@ -28,8 +26,10 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllUsers()
     {
-        var users = await _userService.GetAllUsersAsync();
-        return Ok(users);
+        var request = new GetAllUsersRequest();
+        var response = await _grpcClient.GetAllUsersAsync(request);
+        
+        return Ok(response.Users);
     }
 
     /// <summary>
@@ -44,42 +44,37 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetUser(int id)
     {
-        var user = await _userService.GetUserByIdAsync(id);
+        var request = new GetUserRequest { Id = id };
+        var response = await _grpcClient.GetUserAsync(request);
         
-        if (user == null)
+        if (!response.Found)
             return NotFound($"Användare med ID {id} hittades inte.");
         
-        return Ok(user);
+        return Ok(response.User);
     }
 
     /// <summary>
     /// Skapar en ny användare
     /// </summary>
-    /// <param name="createUserDto">Användarens information</param>
+    /// <param name="createUserRequest">Användarens information</param>
     /// <returns>Den nyskapade användaren</returns>
     /// <response code="201">Användaren har skapats</response>
     /// <response code="400">Ogiltig data</response>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserDto createUserDto)
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest createUserRequest)
     {
-        var user = new User
-        {
-            Name = createUserDto.Name,
-            Email = createUserDto.Email,
-            MemberSince = createUserDto.MemberSince
-        };
-
-        var createdUser = await _userService.CreateUserAsync(user);
-        return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, createdUser);
+        var response = await _grpcClient.CreateUserAsync(createUserRequest);
+        
+        return CreatedAtAction(nameof(GetUser), new { id = response.User.Id }, response.User);
     }
 
     /// <summary>
     /// Uppdaterar en befintlig användare
     /// </summary>
     /// <param name="id">Användarens ID</param>
-    /// <param name="updateUserDto">Uppdaterad information</param>
+    /// <param name="updateUserRequest">Uppdaterad information</param>
     /// <returns>Den uppdaterade användaren</returns>
     /// <response code="200">Användaren har uppdaterats</response>
     /// <response code="404">Användaren hittades inte</response>
@@ -88,21 +83,15 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto updateUserDto)
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest updateUserRequest)
     {
-        var user = new User
-        {
-            Name = updateUserDto.Name,
-            Email = updateUserDto.Email,
-            MemberSince = updateUserDto.MemberSince
-        };
-
-        var updatedUser = await _userService.UpdateUserAsync(id, user);
+        updateUserRequest.Id = id;
+        var response = await _grpcClient.UpdateUserAsync(updateUserRequest);
         
-        if (updatedUser == null)
+        if (!response.Found)
             return NotFound($"Användare med ID {id} hittades inte.");
         
-        return Ok(updatedUser);
+        return Ok(response.User);
     }
 
     /// <summary>
@@ -117,9 +106,10 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteUser(int id)
     {
-        var result = await _userService.DeleteUserAsync(id);
+        var request = new DeleteUserRequest { Id = id };
+        var response = await _grpcClient.DeleteUserAsync(request);
         
-        if (!result)
+        if (!response.Success)
             return NotFound($"Användare med ID {id} hittades inte.");
         
         return NoContent();
