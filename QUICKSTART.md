@@ -13,6 +13,60 @@
 
 ## Testa API:t med exempel
 
+### CRUD Operationer
+
+#### Skapa en ny bok
+```bash
+POST https://localhost:5001/api/books
+Content-Type: application/json
+
+{
+  "title": "Den lilla prinsen",
+  "author": "Antoine de Saint-Exupéry",
+  "isbn": "978-91-29-65000-0",
+  "pages": 96,
+  "publishedYear": 1943
+}
+```
+
+#### Hämta alla böcker
+```bash
+GET https://localhost:5001/api/books
+```
+
+#### Uppdatera en bok
+```bash
+PUT https://localhost:5001/api/books/1
+Content-Type: application/json
+
+{
+  "title": "Harry Potter och De vises sten (uppdaterad)",
+  "author": "J.K. Rowling",
+  "isbn": "978-91-29-65843-7",
+  "pages": 335,
+  "publishedYear": 1997
+}
+```
+
+#### Ta bort en bok
+```bash
+DELETE https://localhost:5001/api/books/1
+```
+
+#### Skapa en ny användare
+```bash
+POST https://localhost:5001/api/users
+Content-Type: application/json
+
+{
+  "name": "Kalle Karlsson",
+  "email": "kalle@example.com",
+  "memberSince": "2024-12-01T00:00:00"
+}
+```
+
+### Biblioteksstatistik
+
 ### 1. Hämta mest lånade böcker
 ```bash
 GET https://localhost:5001/api/library/most-borrowed?top=5

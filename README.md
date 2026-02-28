@@ -36,6 +36,28 @@ En ASP.NET Core Web API-applikation för att hantera ett biblioteks böcker och lå
 
 ## API Endpoints
 
+### CRUD Operationer
+
+#### Books (Böcker)
+```
+GET    /api/books              - Hämta alla böcker
+GET    /api/books/{id}         - Hämta en specifik bok
+POST   /api/books              - Skapa en ny bok
+PUT    /api/books/{id}         - Uppdatera en bok
+DELETE /api/books/{id}         - Ta bort en bok
+```
+
+#### Users (Användare)
+```
+GET    /api/users              - Hämta alla användare
+GET    /api/users/{id}         - Hämta en specifik användare
+POST   /api/users              - Skapa en ny användare
+PUT    /api/users/{id}         - Uppdatera en användare
+DELETE /api/users/{id}         - Ta bort en användare
+```
+
+### Biblioteksstatistik
+
 ### 1. Mest lånade böcker
 ```
 GET /api/library/most-borrowed?top=10
