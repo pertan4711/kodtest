@@ -1,5 +1,6 @@
 using Grpc.Core;
 using LibraryService.Grpc.Users;
+using LibraryService.Interfaces;
 using uppgift2.service.Models;
 using uppgift2.service.Services;
 

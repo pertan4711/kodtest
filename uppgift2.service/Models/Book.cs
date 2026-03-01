@@ -9,5 +9,5 @@ public class Book
     public int Pages { get; set; }
     public int PublishedYear { get; set; }
 
-    public ICollection<BookCopy> Copies { get; set; } = new List<BookCopy>();
+    public ICollection<BookCopy> Copies { get; set; } = [];
 }

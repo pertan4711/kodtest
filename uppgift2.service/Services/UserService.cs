@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using uppgift2.service.Data;
 using uppgift2.service.Models;
+using LibraryService.Interfaces;
 
 namespace uppgift2.service.Services;
 
@@ -33,6 +34,7 @@ public class UserService : IUserService
     {
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
+        
         return user;
     }
 
@@ -47,6 +49,7 @@ public class UserService : IUserService
         existingUser.MemberSince = user.MemberSince;
 
         await _context.SaveChangesAsync();
+        
         return existingUser;
     }
 
@@ -58,6 +61,7 @@ public class UserService : IUserService
 
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
+        
         return true;
     }
 }

@@ -1,3 +1,4 @@
+using LibraryService.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using uppgift2.service.Data;
 using uppgift2.service.Models;
@@ -31,6 +32,7 @@ public class BookService : IBookService
     {
         _context.Books.Add(book);
         await _context.SaveChangesAsync();
+        
         return book;
     }
 
@@ -47,6 +49,7 @@ public class BookService : IBookService
         existingBook.PublishedYear = book.PublishedYear;
 
         await _context.SaveChangesAsync();
+        
         return existingBook;
     }
 
@@ -58,6 +61,7 @@ public class BookService : IBookService
 
         _context.Books.Remove(book);
         await _context.SaveChangesAsync();
+        
         return true;
     }
 }

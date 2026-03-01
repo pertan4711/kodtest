@@ -1,5 +1,6 @@
 using Grpc.Core;
 using LibraryService.Grpc.Library;
+using LibraryService.Interfaces;
 using uppgift2.service.Services;
 
 namespace uppgift2.service.GrpcServices;

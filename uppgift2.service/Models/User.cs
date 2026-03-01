@@ -7,5 +7,5 @@ public class User
     public string Email { get; set; } = string.Empty;
     public DateTime MemberSince { get; set; }
 
-    public ICollection<Loan> Loans { get; set; } = new List<Loan>();
+    public ICollection<Loan> Loans { get; set; } = [];
 }

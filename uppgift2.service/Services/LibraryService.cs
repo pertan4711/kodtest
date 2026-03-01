@@ -1,37 +1,10 @@
+using LibraryService.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using uppgift2.service.Data;
 using uppgift2.service.DTOs;
 using uppgift2.service.Models;
 
 namespace uppgift2.service.Services;
-
-public interface ILibraryService
-{
-    Task<List<MostBorrowedBookDto>> GetMostBorrowedBooksAsync(int top = 10);
-    Task<BookAvailabilityDto?> GetBookAvailabilityAsync(int bookId);
-    Task<List<TopBorrowerDto>> GetTopBorrowersAsync(DateTime startDate, DateTime endDate, int top = 10);
-    Task<List<UserLoanHistoryDto>> GetUserLoanHistoryAsync(int userId, DateTime? startDate = null, DateTime? endDate = null);
-    Task<List<RelatedBookDto>> GetRelatedBooksAsync(int bookId, int top = 10);
-    Task<ReadingSpeedDto?> GetReadingSpeedAsync(int bookId);
-}
-
-public interface IBookService
-{
-    Task<List<Book>> GetAllBooksAsync();
-    Task<Book?> GetBookByIdAsync(int id);
-    Task<Book> CreateBookAsync(Book book);
-    Task<Book?> UpdateBookAsync(int id, Book book);
-    Task<bool> DeleteBookAsync(int id);
-}
-
-public interface IUserService
-{
-    Task<List<User>> GetAllUsersAsync();
-    Task<User?> GetUserByIdAsync(int id);
-    Task<User> CreateUserAsync(User user);
-    Task<User?> UpdateUserAsync(int id, User user);
-    Task<bool> DeleteUserAsync(int id);
-}
 
 public class LibraryService : ILibraryService
 {
