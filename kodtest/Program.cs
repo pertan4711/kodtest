@@ -1,4 +1,5 @@
-﻿// Uppgift 1 - Metoder för uppvärmning 
+﻿// Frenda kodtest
+// Uppgift 1 - Uppvärmning 
 using System.Text;
 
 
@@ -10,12 +11,8 @@ bool IsPowerOfTwo(int n)
 
 string ReverseString(string s)
 {
-    //char[] charArray = s.ToCharArray();
-    //Array.Reverse(charArray);
-    //return new string(charArray);
-
     var reversed = new StringBuilder();
-    for (int i = s.Length; i > 0; i--)
+    for (int i = s.Length - 1; i >= 0; i--)
     {
         reversed.Append(s[i]);
     }
@@ -23,12 +20,20 @@ string ReverseString(string s)
     return reversed.ToString();
 }
 
+string ReverseStringCharArray(string s)
+{
+    char[] charArray = s.ToCharArray();
+    Array.Reverse(charArray);
+    
+    return new string(charArray);
+}
+
 string RepeatString(string s, int antal)
 {
     var str = new StringBuilder();
     for (int i = 0; i < antal; i++)
     {  
-        str.Append(s[i]); 
+        str.Append(s); 
     }
     
     return str.ToString();
@@ -66,6 +71,7 @@ while (cont)
     int heltal;
     while (true)
     {
+        Console.WriteLine();
         Console.Write("Mata in ett heltal: ");
         string? input = Console.ReadLine();
         
@@ -84,11 +90,6 @@ while (cont)
     Console.Write("Vill du mata in ytterligare ett tal? (j/n): ");
     string? svar = Console.ReadLine()?.ToLower();
     cont = svar == "j" || svar == "ja";
-    
-    if (cont)
-    {
-        Console.WriteLine(); // Tom rad för bättre läsbarhet
-    }
 }
 
 // Stränghantering
@@ -96,7 +97,8 @@ bool contString = true;
 int antal;
 while (contString)
 {
-    Console.WriteLine("Mata in en sträng: ");
+    Console.WriteLine();
+    Console.Write("Mata in en sträng: ");
     var myString = Console.ReadLine();
     if (!string.IsNullOrEmpty(myString))
     {
@@ -122,16 +124,10 @@ while (contString)
     Console.Write("Vill du mata in ytterligare en sträng? (j/n): ");
     string? svar = Console.ReadLine()?.ToLower();
     contString = svar == "j" || svar == "ja";
-    
-    if (contString)
-    {
-        Console.WriteLine(); 
-    }
 }
 
 Console.WriteLine();
 
-// Udda tal
+// Skriv ut udda tal mellan 0 och 100
 Console.WriteLine("Udda tal mellan 0 och 100:");
 WriteOddIntegers(0, 100);
-Console.WriteLine();

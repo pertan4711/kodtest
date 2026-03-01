@@ -10,9 +10,9 @@ namespace uppgift2.api.Controllers;
 [Route("api/[controller]")]
 public class BooksController : ControllerBase
 {
-    private readonly LibraryService.Grpc.Books.BookService.BookServiceClient _grpcClient;
+    private readonly BookService.BookServiceClient _grpcClient;
 
-    public BooksController(LibraryService.Grpc.Books.BookService.BookServiceClient grpcClient)
+    public BooksController(BookService.BookServiceClient grpcClient)
     {
         _grpcClient = grpcClient;
     }
